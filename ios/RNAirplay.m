@@ -33,6 +33,17 @@ RCT_EXPORT_METHOD(startScan)
 RCT_EXPORT_METHOD(disconnect)
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+
+    AVAudioSession *sharedInstance = [AVAudioSession sharedInstance];
+    NSLog(@"is setCategory %d", [sharedInstance setCategory:AVAudioSessionCategoryPlayAndRecord error:nil]);
+    NSLog(@"is setMode %d", [sharedInstance setMode:AVAudioSessionModeDefault error:nil]);
+    NSLog(@"is overrideOutputAudioPort %d", [sharedInstance overrideOutputAudioPort:AVAudioSessionPortOverrideSpeaker error:(nil)]);
+    NSLog(@"is setActive %d", [sharedInstance setActive:YES error:nil]);
+
+    for (AVAudioSessionPortDescription *outputDesc in [[sharedInstance currentRoute] outputs]) {
+        NSLog(@"sharedInstance: \n outputDesc - %@", outputDesc);
+        NSLog(@"portType - %@; portType - %@; uid - %@;", outputDesc.portName, outputDesc.portType, outputDesc.UID);
+    }
 }
 
 
