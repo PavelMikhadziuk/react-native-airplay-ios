@@ -35,11 +35,6 @@ RCT_EXPORT_METHOD(disconnect)
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
-RCT_EXPORT_METHOD(disconnect)
-{
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
-}
-
 RCT_REMAP_METHOD(changeRouteFromAirplay, changeRouteFromAirplayWithResolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
     AVAudioSession *sharedInstance = [AVAudioSession sharedInstance];
