@@ -33,16 +33,39 @@ RCT_EXPORT_METHOD(startScan)
 RCT_EXPORT_METHOD(disconnect)
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
 
+RCT_EXPORT_METHOD(disconnect)
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+RCT_REMAP_METHOD(changeRouteFromAirplay, changeRouteFromAirplayWithResolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
     AVAudioSession *sharedInstance = [AVAudioSession sharedInstance];
-    NSLog(@"is setCategory %d", [sharedInstance setCategory:AVAudioSessionCategoryPlayAndRecord error:nil]);
-    NSLog(@"is setMode %d", [sharedInstance setMode:AVAudioSessionModeDefault error:nil]);
-    NSLog(@"is overrideOutputAudioPort %d", [sharedInstance overrideOutputAudioPort:AVAudioSessionPortOverrideSpeaker error:(nil)]);
-    NSLog(@"is setActive %d", [sharedInstance setActive:YES error:nil]);
+
+    for (AVAudioSessionPortDescription *inputSource in [sharedInstance availableInputs]) {
+        RCTLogInfo(@"inputSource = %@", inputSource);
+    }
+    BOOL isSetCategory = [sharedInstance setCategory:AVAudioSessionCategoryPlayAndRecord error:nil];
+    RCTLogInfo(@"is setCategory %d", isSetCategory);
+    BOOL isSetMode = [sharedInstance setMode:AVAudioSessionModeDefault error:nil];
+    RCTLogInfo(@"is setMode %d", isSetMode);
+    BOOL isOverrideOutputAudioPort = [sharedInstance overrideOutputAudioPort:AVAudioSessionPortOverrideSpeaker error:(nil)];
+    RCTLogInfo(@"is overrideOutputAudioPort %d", isOverrideOutputAudioPort);
+    BOOL isSetActive = [sharedInstance setActive:YES error:nil];
+    RCTLogInfo(@"is setActive %d", isSetActive);
 
     for (AVAudioSessionPortDescription *outputDesc in [[sharedInstance currentRoute] outputs]) {
-        NSLog(@"sharedInstance: \n outputDesc - %@", outputDesc);
-        NSLog(@"portType - %@; portType - %@; uid - %@;", outputDesc.portName, outputDesc.portType, outputDesc.UID);
+        RCTLogInfo(@"sharedInstance: \n outputDesc - %@", outputDesc);
+        RCTLogInfo(@"portType - %@; portType - %@; uid - %@;", outputDesc.portName, outputDesc.portType, outputDesc.UID);
+    }
+    NSDictionary *details = @{@"isSetCategory": @(isSetCategory), @"isSetMode": @(isSetMode), @"isOverrideOutputAudioPort": @(isOverrideOutputAudioPort), @"isSetActive": @(isSetActive)};
+    if (isSetCategory && isSetMode && isOverrideOutputAudioPort && isSetActive) {
+        resolve(details);
+    } else {
+        NSError *error = [NSError errorWithDomain:@"com.brainfm" code:14 userInfo:[NSDictionary dictionaryWithObject:@"Couldn't change route" forKey:NSLocalizedDescriptionKey]];
+        reject(@"no_events", [NSString stringWithFormat:@"Details is %@", details], error);
     }
 }
 
